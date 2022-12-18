@@ -39,8 +39,6 @@ int main(int argc, char *argv[], char *envp[])
 			get_commands(lineptr, argv);
 			create_child(argv, envp, prog_name);
 		}
-		else
-			continue;
 	}
 	return (0);
 }
@@ -67,21 +65,18 @@ void get_commands(char str[], char **argv)
 	while (str[len] != '\0')
 	{
 		if (str[len] == '\t' || str[len] == '\n')
-		{
 			strcopy[len] = ' ';
-		}
 		else
 			strcopy[len] = str[len];
 		len++;
 	}
-	i = 1;
+	i = 0;
 	argv[0] = strtok(strcopy, " ");
 	while (argv[i] != NULL)
 	{
 		i++;
 		argv[i] = strtok(NULL, " ");
 	}
-	argv[i + 1] = '\0';
 }
 /**
  * create_child - Function forks a child process and executes command fed via
