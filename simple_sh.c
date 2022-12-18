@@ -23,7 +23,7 @@ int main(int argc, char *argv[], char *envp[])
 {
 	pid_t child;
 	size_t line, size;
-	int status;
+	int status, same;
 	static char *prog_name;
 	char *lineptr;
 
@@ -37,6 +37,9 @@ int main(int argc, char *argv[], char *envp[])
 		if (line != -1)
 		{
 			get_commands(lineptr, argv);
+			same = strcmp(argv[0], "exit");
+			if (same == 0)
+				exit(0);
 			create_child(argv, envp, prog_name);
 		}
 	}
