@@ -6,32 +6,41 @@
 #include <sys/wait.h>
 
 void get_commands(char [], char **);
-void create_child(char **argv, char *envp[]);
+void create_child(char **argv, char *envp[], char *prog_name);
+size_t getlen(char []);
 /**
  * main - Function creates a simple interactive shell.
  * @argc: Variable holding the number of args passed to the main function.
- * @argv: A pointer to an array of strings(the arguments passed to the function.
+ * @argv: A pointer to an array of strings(the arguments passed to the
+ * function.
+ * @envp: Pointer to array holding system's environment variables.
  *
  * Description: Function creates a simple interactive shell.
+ *
+ * Return: 0 if successful.
  */
 int main(int argc, char *argv[], char *envp[])
 {
 	pid_t child;
 	size_t line, size;
 	int status;
-	char *coms, *lineptr;
+	static char *prog_name;
+	char *lineptr;
 
+	prog_name = argv[0];
 	size = 0;
 	lineptr = NULL;
 	while (1)
 	{
-		
-		dprintf(STDOUT_FILENO, "%s", "cisfun$");
+		dprintf(STDOUT_FILENO, "%s", "#cisfun$");
 		line = getline(&lineptr, &size, stdin);
-		if (line == -1)
-			dprintf(STDOUT_FILENO, "Unable to get line\n"), exit(1);
-		get_commands(lineptr, argv);
-		create_child(argv, envp);
+		if (line != -1)
+		{
+			get_commands(lineptr, argv);
+			create_child(argv, envp, prog_name);
+		}
+		else
+			continue;
 	}
 	return (0);
 }
@@ -46,29 +55,48 @@ int main(int argc, char *argv[], char *envp[])
  */
 void get_commands(char str[], char **argv)
 {
-	int i, j;
+	int i, j, len;
+	size_t strlen;
+	char *strcopy;
 
-	i = 1;
-	argv[0] = strtok(str, " ");
-	while (argv[i] != NULL)
-	{	
-		argv[i] = strtok(NULL, " ");
-		i++;
+	len = 0;
+	strlen = (getlen(str));
+	strcopy = malloc(sizeof(char) * strlen);
+	if (strcopy == NULL)
+		exit(1);
+	while (str[len] != '\0')
+	{
+		if (str[len] == '\t' || str[len] == '\n')
+		{
+			strcopy[len] = ' ';
+		}
+		else
+			strcopy[len] = str[len];
+		len++;
 	}
-	argv[i] = '\0';
+	i = 1;
+	argv[0] = strtok(strcopy, " ");
+	while (argv[i] != NULL)
+	{
+		i++;
+		argv[i] = strtok(NULL, " ");
+	}
+	argv[i + 1] = '\0';
 }
 /**
- * create_child - Function forks a child process and executes command fed via argv
+ * create_child - Function forks a child process and executes command fed via
+ * argv.
  * @argv: Pointer to array containing strings of commands.
- *
- * Description: Function forks a child process and executes command fed via argv.
+ * @envp: Pointer to array containing the system's environmnetal variables.
+ * @prog_name: The name of the calling program.
+ * Description: Function forks a child process and executes command fed via
+ * argv.
  * Return: Nothing.
  */
-void create_child(char **argv, char **envp)
+void create_child(char **argv, char **envp, char *prog_name)
 {
-	pid_t child;
+	pid_t child, stat;
 	int status, exec_status;
-	char *com;
 
 	child = fork();
 	if (child < 0)
@@ -80,8 +108,32 @@ void create_child(char **argv, char **envp)
 	{
 		exec_status = execve(*argv, argv, envp);
 		if (exec_status == -1)
-			dprintf(STDOUT_FILENO, "Error: exec failed\n"), exit(100);
+		{
+			dprintf(STDOUT_FILENO, "%s: No such file or directory\n", prog_name);
+			exit(100);
+		}
 	}
 	else
-		while (wait(&status) != child);
+	{
+		while (stat != child)
+			stat = wait(&status);
+
+	}
+}
+/**
+ * getlen - Function calculates the length of a given string.
+ * @str: The string whose length we are to calculate.
+ *
+ * Description: Function calculates the length of a given string.
+ * Return: The length of the string.
+ */
+size_t getlen(char str[])
+{
+	size_t len;
+
+	len = 0;
+	while (str[len] != '\0')
+		len++;
+
+	return (len);
 }
