@@ -8,22 +8,23 @@
 void get_commands(char [], char **);
 void create_child(char **argv, char *envp[], char *prog_name);
 size_t getlen(char []);
+void printenv(char **);
 /**
  * main - Function creates a simple interactive shell.
  * @argc: Variable holding the number of args passed to the main function.
  * @argv: A pointer to an array of strings(the arguments passed to the
  * function.
- * @envp: Pointer to array holding system's environment variables.
+ * @env: Pointer to array holding system's environment variables.
  *
  * Description: Function creates a simple interactive shell.
  *
  * Return: 0 if successful.
  */
-int main(int argc, char *argv[], char *envp[])
+int main(int argc, char *argv[], char *env[])
 {
 	pid_t child;
 	size_t line, size;
-	int status, same;
+	int status, same, _env;
 	static char *prog_name;
 	char *lineptr;
 
@@ -38,9 +39,15 @@ int main(int argc, char *argv[], char *envp[])
 		{
 			get_commands(lineptr, argv);
 			same = strcmp(argv[0], "exit");
+			_env = strcmp(argv[0], "env");
 			if (same == 0)
 				exit(0);
-			create_child(argv, envp, prog_name);
+			if (_env == 0)
+			{
+				printenv(env);
+				continue;
+			}
+			create_child(argv, env, prog_name);
 		}
 	}
 	return (0);
@@ -85,13 +92,13 @@ void get_commands(char str[], char **argv)
  * create_child - Function forks a child process and executes command fed via
  * argv.
  * @argv: Pointer to array containing strings of commands.
- * @envp: Pointer to array containing the system's environmnetal variables.
+ * @env: Pointer to array containing the system's environmnetal variables.
  * @prog_name: The name of the calling program.
  * Description: Function forks a child process and executes command fed via
  * argv.
  * Return: Nothing.
  */
-void create_child(char **argv, char **envp, char *prog_name)
+void create_child(char **argv, char **env, char *prog_name)
 {
 	pid_t child, stat;
 	int status, exec_status;
@@ -104,7 +111,7 @@ void create_child(char **argv, char **envp, char *prog_name)
 	}
 	else if (child == 0)
 	{
-		exec_status = execve(*argv, argv, envp);
+		exec_status = execve(*argv, argv, env);
 		if (exec_status == -1)
 		{
 			dprintf(STDOUT_FILENO, "%s: No such file or directory\n", prog_name);
@@ -134,4 +141,20 @@ size_t getlen(char str[])
 		len++;
 
 	return (len);
+}
+/**
+ * printenv - Function prints the environment variables.
+ * @env: Pointer to the array containing the environment variables.
+ *
+ * Description: Function prints the environment variables.
+ *
+ * Return: Nothing.
+ */
+void printenv(char **env)
+{
+	while (*env != NULL)
+	{
+		dprintf(STDOUT_FILENO, "%s\n", *env);
+		*env++;
+	}
 }
