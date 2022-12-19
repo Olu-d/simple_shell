@@ -20,11 +20,10 @@ void printenv(char **);
  *
  * Return: 0 if successful.
  */
-int main(int argc, char *argv[], char *env[])
+int main(__attribute__ ((unused)) int argc, char *argv[], char *env[])
 {
-	pid_t child;
-	size_t line, size;
-	int status, same, _env;
+	size_t size;
+	int line, same, _env;
 	static char *prog_name;
 	char *lineptr;
 
@@ -63,7 +62,7 @@ int main(int argc, char *argv[], char *env[])
  */
 void get_commands(char str[], char **argv)
 {
-	int i, j, len;
+	int i, len;
 	size_t strlen;
 	char *strcopy;
 
@@ -152,9 +151,12 @@ size_t getlen(char str[])
  */
 void printenv(char **env)
 {
-	while (*env != NULL)
+	int len;
+
+	len = 0;
+	while (env[len] != NULL)
 	{
-		dprintf(STDOUT_FILENO, "%s\n", *env);
-		*env++;
+		dprintf(STDOUT_FILENO, "%s\n", env[len]);
+		len++;
 	}
 }
