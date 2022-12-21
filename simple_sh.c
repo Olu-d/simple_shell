@@ -30,6 +30,15 @@ int main(__attribute__((unused)) int argc, char *argv[], char *env[])
 	prog_name = argv[0];
 	size = 0;
 	lineptr = NULL;
+	if (!isatty(STDIN_FILENO))
+	{
+		line = getline(&lineptr, &size, stdin);
+		if (line != -1)
+		{
+			get_commands(lineptr, argv);
+			create_child(argv, env, prog_name);
+		}
+	}
 	while (1)
 	{
 		dprintf(STDOUT_FILENO, "%s", "$ ");
