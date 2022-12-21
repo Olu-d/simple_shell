@@ -23,7 +23,7 @@ void create_child(char **argv, char **env, char *prog_name)
 	}
 	else if (child == 0)
 	{
-		exec_status = execve(*argv, argv, env);
+		exec_status = execvp(*argv, argv);
 		if (exec_status == -1)
 		{
 			dprintf(STDOUT_FILENO, "%s: No such file or directory\n", prog_name);
