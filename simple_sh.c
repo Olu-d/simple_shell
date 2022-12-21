@@ -20,7 +20,7 @@ void printenv(char **);
  *
  * Return: 0 if successful.
  */
-int main(__attribute__ ((unused)) int argc, char *argv[], char *env[])
+int main(__attribute__((unused)) int argc, char *argv[], char *env[])
 {
 	size_t size;
 	int line, same, _env;
@@ -32,7 +32,7 @@ int main(__attribute__ ((unused)) int argc, char *argv[], char *env[])
 	lineptr = NULL;
 	while (1)
 	{
-		dprintf(STDOUT_FILENO, "%s", "#cisfun$");
+		dprintf(STDOUT_FILENO, "%s", "$ ");
 		line = getline(&lineptr, &size, stdin);
 		if (line == 1)
 		{
@@ -60,10 +60,8 @@ int main(__attribute__ ((unused)) int argc, char *argv[], char *env[])
 		}
 		else if (line == EOF)
 		{
-			if (lineptr != NULL)
-				free(lineptr);
-			if (strcpy != NULL)
-				free(strcpy);
+			dprintf(STDOUT_FILENO, "\n");
+			free(lineptr);
 			exit(0);
 		}
 		else
@@ -131,8 +129,9 @@ char *get_commands(char str[], char **argv)
 void create_child(char **argv, char **env, char *prog_name)
 {
 	pid_t child, stat;
-	int status, exec_status;
+	int status, exec_status, len;
 
+	len = 0;
 	stat = -1;
 	child = fork();
 	if (child < 0)
@@ -145,7 +144,9 @@ void create_child(char **argv, char **env, char *prog_name)
 		exec_status = execve(*argv, argv, env);
 		if (exec_status == -1)
 		{
-			dprintf(STDOUT_FILENO, "%s: No such file or directory\n", prog_name);
+			while (argv[len] != NULL)
+				len++;
+			dprintf(STDOUT_FILENO, "%s: %d: %s: not found\n", prog_name, len, *argv);
 			exit(100);
 		}
 	}
