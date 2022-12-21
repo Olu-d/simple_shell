@@ -41,6 +41,8 @@ int main(__attribute__ ((unused)) int argc, char *argv[], char *env[])
 		else if (line != -1)
 		{
 			strcpy = get_commands(lineptr, argv);
+			if (argv[0] == NULL)
+				continue;
 			same = strcmp(argv[0], "exit");
 			_env = strcmp(argv[0], "env");
 			if (same == 0)
@@ -106,8 +108,9 @@ char *get_commands(char str[], char **argv)
 		}
 		len++;
 	}
+	strcopy[len] = '\0';
 	i = 0;
-	argv[0] = strtok(strcopy, " ");
+	argv[i] = strtok(strcopy, " ");
 	while (argv[i] != NULL)
 	{
 		i++;
