@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-void get_commands(char [], char **);
+char *get_commands(char [], char **);
 void create_child(char **argv, char *envp[], char *prog_name);
 size_t getlen(char []);
 void printenv(char **);
@@ -25,7 +25,7 @@ int main(__attribute__ ((unused)) int argc, char *argv[], char *env[])
 	size_t size;
 	int line, same, _env;
 	static char *prog_name;
-	char *lineptr;
+	char *lineptr, *strcpy;
 
 	prog_name = argv[0];
 	size = 0;
@@ -34,21 +34,43 @@ int main(__attribute__ ((unused)) int argc, char *argv[], char *env[])
 	{
 		dprintf(STDOUT_FILENO, "%s", "#cisfun$");
 		line = getline(&lineptr, &size, stdin);
-		if (line != -1)
+		if (line == 1)
 		{
-			get_commands(lineptr, argv);
+			continue;
+		}
+		else if (line != -1)
+		{
+			strcpy = get_commands(lineptr, argv);
 			same = strcmp(argv[0], "exit");
 			_env = strcmp(argv[0], "env");
 			if (same == 0)
+			{
+				free(strcpy);
+				free(lineptr);
 				exit(0);
-			if (_env == 0)
+			}
+			else if (_env == 0)
 			{
 				printenv(env);
 				continue;
 			}
 			create_child(argv, env, prog_name);
 		}
+		else if (line == EOF)
+		{
+			if (lineptr != NULL)
+				free(lineptr);
+			if (strcpy != NULL)
+				free(strcpy);
+			exit(0);
+		}
+		else
+			continue;
 	}
+	if (strcpy != NULL)
+		free(strcpy);
+	if (lineptr != NULL)
+		free(lineptr);
 	return (0);
 }
 /**
@@ -60,23 +82,28 @@ int main(__attribute__ ((unused)) int argc, char *argv[], char *env[])
  *
  * Return: A pointer to an array containing the individual commands.
  */
-void get_commands(char str[], char **argv)
+char *get_commands(char str[], char **argv)
 {
 	int i, len;
 	size_t strlen;
-	char *strcopy;
+	static char *strcopy;
 
 	len = 0;
 	strlen = (getlen(str));
+	strlen++;
 	strcopy = malloc(sizeof(char) * strlen);
 	if (strcopy == NULL)
 		exit(1);
 	while (str[len] != '\0')
 	{
 		if (str[len] == '\t' || str[len] == '\n')
+		{
 			strcopy[len] = ' ';
+		}
 		else
+		{
 			strcopy[len] = str[len];
+		}
 		len++;
 	}
 	i = 0;
@@ -86,6 +113,7 @@ void get_commands(char str[], char **argv)
 		i++;
 		argv[i] = strtok(NULL, " ");
 	}
+	return (strcopy);
 }
 /**
  * create_child - Function forks a child process and executes command fed via
@@ -102,6 +130,7 @@ void create_child(char **argv, char **env, char *prog_name)
 	pid_t child, stat;
 	int status, exec_status;
 
+	stat = -1;
 	child = fork();
 	if (child < 0)
 	{
