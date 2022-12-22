@@ -1,14 +1,10 @@
+#include "shell.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
-char *get_commands(char [], char **);
-void create_child(char **argv, char *envp[], char *prog_name);
-size_t getlen(char []);
-void printenv(char **);
 /**
  * main - Function creates a simple interactive shell.
  * @argc: Variable holding the number of args passed to the main function.
@@ -30,23 +26,12 @@ int main(__attribute__((unused)) int argc, char *argv[], char *env[])
 	prog_name = argv[0];
 	size = 0;
 	lineptr = NULL;
-	if (!isatty(STDIN_FILENO))
-	{
-		line = getline(&lineptr, &size, stdin);
-		if (line != -1)
-		{
-			get_commands(lineptr, argv);
-			create_child(argv, env, prog_name);
-		}
-	}
 	while (1)
 	{
 		dprintf(STDOUT_FILENO, "%s", "$ ");
 		line = getline(&lineptr, &size, stdin);
 		if (line == 1)
-		{
 			continue;
-		}
 		else if (line != -1)
 		{
 			strcpy = get_commands(lineptr, argv);
@@ -57,8 +42,7 @@ int main(__attribute__((unused)) int argc, char *argv[], char *env[])
 			if (same == 0)
 			{
 				free(strcpy);
-				free(lineptr);
-				exit(0);
+				free(lineptr), exit(0);
 			}
 			else if (_env == 0)
 			{
@@ -68,18 +52,10 @@ int main(__attribute__((unused)) int argc, char *argv[], char *env[])
 			create_child(argv, env, prog_name);
 		}
 		else if (line == EOF)
-		{
-			dprintf(STDOUT_FILENO, "\n");
-			free(lineptr);
-			exit(0);
-		}
+			free(lineptr), exit(0);
 		else
 			continue;
 	}
-	if (strcpy != NULL)
-		free(strcpy);
-	if (lineptr != NULL)
-		free(lineptr);
 	return (0);
 }
 /**
@@ -155,7 +131,7 @@ void create_child(char **argv, char **env, char *prog_name)
 		{
 			while (argv[len] != NULL)
 				len++;
-			dprintf(STDOUT_FILENO, "%s: %d: %s: not found\n", prog_name, len, *argv);
+			perror(prog_name);
 			exit(100);
 		}
 	}
