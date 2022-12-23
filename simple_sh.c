@@ -28,13 +28,20 @@ int main(__attribute__((unused)) int argc, char *argv[], char *env[])
 	lineptr = NULL;
 	if (!isatty(STDIN_FILENO))
 	{
-		getline(&lineptr, &size, stdin);
-		strcpy = get_commands(lineptr, argv);
-		if (argv[0] == NULL)
-			exit(0);
-		create_child(argv, env, prog_name);
-		free(lineptr);
-		free(strcpy);
+		while (1)
+		{
+			line = getline(&lineptr, &size, stdin);
+			if (line == -1)
+			{	free(lineptr);
+				exit(0);
+			}
+			strcpy = get_commands(lineptr, argv);
+			if (argv[0] == NULL)
+				exit(0);
+			create_child(argv, env, prog_name);
+			/*free(lineptr);*/
+			free(strcpy);
+		}
 	}
 	else
 	{
