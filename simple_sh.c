@@ -37,7 +37,11 @@ int main(__attribute__((unused)) int argc, char *argv[], char *env[])
 			}
 			strcpy = get_commands(lineptr, argv);
 			if (argv[0] == NULL)
+			{
+				free(strcpy);
+				free(lineptr);
 				exit(0);
+			}
 			create_child(argv, env, prog_name);
 			/*free(lineptr);*/
 			free(strcpy);
