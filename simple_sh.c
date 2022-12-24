@@ -18,67 +18,11 @@
  */
 int main(__attribute__((unused)) int argc, char *argv[], char *env[])
 {
-	size_t size;
-	int line, same, _env;
-	static char *prog_name;
-	char *lineptr, *strcpy;
-
-	prog_name = argv[0];
-	size = 0;
-	lineptr = NULL;
 	if (!isatty(STDIN_FILENO))
-	{
-		while (1)
-		{
-			line = getline(&lineptr, &size, stdin);
-			if (line == -1)
-			{	free(lineptr);
-				exit(0);
-			}
-			strcpy = get_commands(lineptr, argv);
-			if (argv[0] == NULL)
-			{
-				free(strcpy);
-				free(lineptr);
-				exit(0);
-			}
-			create_child(argv, env, prog_name);
-			/*free(lineptr);*/
-			free(strcpy);
-		}
-	}
+		non_interactive(argv, env);
 	else
 	{
-		while (1)
-		{
-			dprintf(STDOUT_FILENO, "%s", "$ ");
-			line = getline(&lineptr, &size, stdin);
-			if (line == 1)
-				continue;
-			else if (line != -1)
-			{
-				strcpy = get_commands(lineptr, argv);
-				if (argv[0] == NULL)
-					continue;
-				same = strcmp(argv[0], "exit");
-				_env = strcmp(argv[0], "env");
-				if (same == 0)
-				{
-					free(strcpy);
-					free(lineptr), exit(0);
-				}
-				else if (_env == 0)
-				{
-					printenv(env);
-					continue;
-				}
-				create_child(argv, env, prog_name);
-			}
-			else if (line == EOF)
-				free(lineptr), exit(0);
-			else
-				continue;
-		}
+		interactive(argv, env);
 	}
 	return (0);
 }
@@ -150,13 +94,18 @@ void create_child(char **argv, char **env, char *prog_name)
 	}
 	else if (child == 0)
 	{
-		exec_status = execve(*argv, argv, env);
-		if (exec_status == -1)
+		if (!file_exists(*argv))
+			perror("no such file or directory"), exit(2);
+		else
 		{
-			while (argv[len] != NULL)
-				len++;
-			perror(prog_name);
-			exit(100);
+			exec_status = execve(*argv, argv, env);
+			if (exec_status == -1)
+			{
+				while (argv[len] != NULL)
+					len++;
+				perror(prog_name);
+				exit(100);
+			}
 		}
 	}
 	else
