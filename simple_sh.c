@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <sys/wait.h>
 /**
  * main - Function creates a simple interactive shell.
@@ -94,18 +96,13 @@ void create_child(char **argv, char **env, char *prog_name)
 	}
 	else if (child == 0)
 	{
-		if (!file_exists(argv[1]))
-			exit(2);
-		else
+		exec_status = execve(*argv, argv, env);
+		if (exec_status == -1)
 		{
-			exec_status = execve(*argv, argv, env);
-			if (exec_status == -1)
-			{
-				while (argv[len] != NULL)
-					len++;
-				perror(prog_name);
-				exit(2);
-			}
+			while (argv[len] != NULL)
+				len++;
+			perror(prog_name);
+			exit(2);
 		}
 	}
 	else
