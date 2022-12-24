@@ -94,8 +94,8 @@ void create_child(char **argv, char **env, char *prog_name)
 	}
 	else if (child == 0)
 	{
-		if (!file_exists(*argv))
-			perror("no such file or directory"), exit(2);
+		if (!file_exists(argv[1]))
+			exit(2);
 		else
 		{
 			exec_status = execve(*argv, argv, env);
@@ -104,7 +104,7 @@ void create_child(char **argv, char **env, char *prog_name)
 				while (argv[len] != NULL)
 					len++;
 				perror(prog_name);
-				exit(100);
+				exit(2);
 			}
 		}
 	}
