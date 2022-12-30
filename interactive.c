@@ -39,9 +39,6 @@ int interactive(char **argv, char **env)
 				continue;
 			}
 			status = create_child(argv, env, prog_name);
-			free(strcpy);
-			free(lineptr);
-			return (status);
 		}
 		else if (line == EOF)
 			free(lineptr), exit(0);
