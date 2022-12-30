@@ -7,14 +7,12 @@
  */
 int interactive(char **argv, char **env)
 {
-	static char *prog_name;
 	char *lineptr, *strcpy;
 	int line, same, _env, status;
 	size_t size;
 
 	lineptr = NULL;
 	size = 0;
-	prog_name = argv[0];
 	while (1)
 	{
 		dprintf(STDOUT_FILENO, "%s", "$ ");
@@ -38,7 +36,7 @@ int interactive(char **argv, char **env)
 				printenv(env);
 				continue;
 			}
-			status = create_child(argv, env, prog_name);
+			status = create_child(argv, env);
 		}
 		else if (line == EOF)
 			free(lineptr), exit(0);

@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 char *get_commands(char [], char **);
-int create_child(char **argv, char *envp[], char *prog_name);
+int create_child(char **argv, char *envp[]);
 size_t getlen(char []);
 void printenv(char **);
 int file_exists(const char *);

@@ -7,14 +7,12 @@
  */
 int non_interactive(char **argv, char **env)
 {
-	static char *prog_name;
 	char *lineptr, *strcpy;
 	int line, same, _env, status;
 	size_t size;
 
 	lineptr = NULL;
 	size = 0;
-	prog_name = argv[0];
 	while (1)
 	{
 		line = getline(&lineptr, &size, stdin);
@@ -40,7 +38,7 @@ int non_interactive(char **argv, char **env)
 			free(strcpy);
 			free(lineptr), exit(0);
 		}
-		status = create_child(argv, env, prog_name);
+		status = create_child(argv, env);
 		free(strcpy);
 		free(lineptr);
 		return (status);

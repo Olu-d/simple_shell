@@ -80,12 +80,11 @@ char *get_commands(char str[], char **argv)
  * argv.
  * @argv: Pointer to array containing strings of commands.
  * @env: Pointer to array containing the system's environmnetal variables.
- * @prog_name: The name of the calling program.
  * Description: Function forks a child process and executes command fed via
  * argv.
  * Return: Nothing.
  */
-int create_child(char **argv, char **env, char *prog_name)
+int create_child(char **argv, char **env)
 {
 	pid_t child;
 	int status, exec_status, len;
