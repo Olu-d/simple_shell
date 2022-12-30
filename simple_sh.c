@@ -20,13 +20,17 @@
  */
 int main(__attribute__((unused)) int argc, char *argv[], char *env[])
 {
+	int ret_val;
+
 	if (!isatty(STDIN_FILENO))
-		non_interactive(argv, env);
+	{
+		ret_val = non_interactive(argv, env);
+	}
 	else
 	{
 		interactive(argv, env);
 	}
-	return (0);
+	return (ret_val);
 }
 /**
  * get_commands - Function breaks down user input into individual commands.
@@ -81,13 +85,13 @@ char *get_commands(char str[], char **argv)
  * argv.
  * Return: Nothing.
  */
-void create_child(char **argv, char **env, char *prog_name)
+int create_child(char **argv, char **env, char *prog_name)
 {
-	pid_t child, stat;
+	pid_t child;
 	int status, exec_status, len;
+	static int exit_status;
 
 	len = 0;
-	stat = -1;
 	child = fork();
 	if (child < 0)
 	{
@@ -101,16 +105,16 @@ void create_child(char **argv, char **env, char *prog_name)
 		{
 			while (argv[len] != NULL)
 				len++;
-			perror(prog_name);
+			perror("cannot access");
 			exit(2);
 		}
 	}
-	else
+	waitpid(child, &status, 0);
+	if (WIFEXITED(status))
 	{
-		while (stat != child)
-			stat = wait(&status);
-
+		exit_status = WEXITSTATUS(status);
 	}
+	return (exit_status);
 }
 /**
  * getlen - Function calculates the length of a given string.

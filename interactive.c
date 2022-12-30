@@ -5,11 +5,11 @@
  * @env: Pointer to array containing environment variables
  * Return: Nothing
  */
-void interactive(char **argv, char **env)
+int interactive(char **argv, char **env)
 {
 	static char *prog_name;
 	char *lineptr, *strcpy;
-	int line, same, _env;
+	int line, same, _env, status;
 	size_t size;
 
 	lineptr = NULL;
@@ -38,11 +38,13 @@ void interactive(char **argv, char **env)
 				printenv(env);
 				continue;
 			}
-			create_child(argv, env, prog_name);
+			status = create_child(argv, env, prog_name);
+			free(strcpy);
+			free(lineptr);
+			return (status);
 		}
 		else if (line == EOF)
 			free(lineptr), exit(0);
-		else
-			continue;
 	}
+	return (status);
 }

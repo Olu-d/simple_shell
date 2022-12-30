@@ -9,5 +9,5 @@
  */
 int file_exists(const char *fname)
 {
-	return access(fname, X_OK) == 0;
+	return access(fname, F_OK) == 0;
 }

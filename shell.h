@@ -7,10 +7,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 char *get_commands(char [], char **);
-void create_child(char **argv, char *envp[], char *prog_name);
+int create_child(char **argv, char *envp[], char *prog_name);
 size_t getlen(char []);
 void printenv(char **);
 int file_exists(const char *);
-void non_interactive(char **, char **);
-void interactive(char **, char **);
+int non_interactive(char **, char **);
+int interactive(char **, char **);
 #endif
